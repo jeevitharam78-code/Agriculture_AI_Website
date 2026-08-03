@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agriculture AI Chatbot</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🌾 Agriculture AI Chatbot</h1>
+
+    <p>Ask your agriculture-related questions below.</p>
+
+    <input
+        type="text"
+        id="question"
+        placeholder="Type your agriculture question..."
+    >
+
+    <br><br>
+
+    <button id="sendBtn">Send</button>
+
+    <button id="clearBtn">Clear Chat</button>
+
+    <hr>
+
+    <h3>Chat History</h3>
+
+    <div id="chatHistory">
+
+        <p>No messages yet.</p>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
+
