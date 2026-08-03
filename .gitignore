@@ -1,0 +1,4 @@
+agriculture_gemma4_lora/
+*.pth
+*.safetensors
+checkpoint-*/
