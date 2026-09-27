@@ -7,33 +7,50 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Agriculture AI Chatbot</title>
+    <title>Agriculture AI Assistant</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
 </head>
+
 
 <body>
 
 <div class="container">
 
-    <h1>🌾 Agriculture AI Chatbot</h1>
+    <h1>🌱 Agriculture AI Assistant</h1>
 
-    <p>Ask your agriculture-related questions below.</p>
+    <p>
+        AI-powered agriculture assistant for crop questions
+        and plant disease detection.
+    </p>
+
+
+    <!-- ================================================= -->
+    <!-- AGRICULTURE CHAT -->
+    <!-- ================================================= -->
+
+    <hr>
+
+    <h2>💬 Agriculture AI Chatbot</h2>
 
     <input
         type="text"
         id="question"
-        placeholder="Type your agriculture question..."
+        placeholder="Ask an agriculture question..."
     >
 
     <br><br>
 
-    <button id="sendBtn">Send</button>
+    <button id="sendBtn">
+        Ask Agriculture AI
+    </button>
 
-    <button id="clearBtn">Clear Chat</button>
+    <button id="clearBtn">
+        Clear Chat
+    </button>
 
-    <hr>
 
     <h3>Chat History</h3>
 
@@ -43,11 +60,311 @@
 
     </div>
 
+
+    <!-- ================================================= -->
+    <!-- PLANT DISEASE -->
+    <!-- ================================================= -->
+
+    <hr>
+
+    <h2>🌿 Plant Disease Detection</h2>
+
+    <p>
+        Upload a plant leaf image to detect possible disease.
+    </p>
+
+
+    <input
+        type="file"
+        id="plantImage"
+        accept="image/*"
+    >
+
+    <br><br>
+
+    <button id="diseaseBtn">
+        Detect Disease
+    </button>
+
+
+    <div id="diseaseResult"
+         style="margin-top:20px;">
+
+    </div>
+
+
 </div>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+
+    // ====================================================
+    // Agriculture Chat
+    // ====================================================
+
+    const questionInput =
+        document.getElementById("question");
+
+    const sendBtn =
+        document.getElementById("sendBtn");
+
+    const clearBtn =
+        document.getElementById("clearBtn");
+
+    const chatHistory =
+        document.getElementById("chatHistory");
+
+
+    sendBtn.addEventListener("click", async function() {
+
+        const question =
+            questionInput.value.trim();
+
+
+        if (!question) {
+
+            alert("Please enter an agriculture question.");
+
+            return;
+        }
+
+
+        if (
+            chatHistory.innerText ===
+            "No messages yet."
+        ) {
+
+            chatHistory.innerHTML = "";
+
+        }
+
+
+        chatHistory.innerHTML +=
+            "<p><b>You:</b> "
+            + question
+            + "</p>";
+
+
+        chatHistory.innerHTML +=
+            "<p id='loading'><b>AI:</b> Thinking...</p>";
+
+
+        questionInput.value = "";
+
+
+        try {
+
+            const response =
+                await fetch("/ask", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        question: question
+                    })
+
+                });
+
+
+            const data =
+                await response.json();
+
+
+            const loading =
+                document.getElementById("loading");
+
+
+            if (loading) {
+
+                loading.innerHTML =
+                    "<b>AI:</b> "
+                    + data.answer;
+
+            }
+
+
+        } catch (error) {
+
+            const loading =
+                document.getElementById("loading");
+
+
+            if (loading) {
+
+                loading.innerHTML =
+                    "<b>AI:</b> Error connecting to model.";
+
+            }
+
+        }
+
+    });
+
+
+    questionInput.addEventListener(
+        "keypress",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                sendBtn.click();
+
+            }
+
+        }
+    );
+
+
+    clearBtn.addEventListener(
+        "click",
+        function() {
+
+            chatHistory.innerHTML =
+                "<p>No messages yet.</p>";
+
+        }
+    );
+
+
+    // ====================================================
+    // Plant Disease Detection
+    // ====================================================
+
+    const diseaseBtn =
+        document.getElementById("diseaseBtn");
+
+    const plantImage =
+        document.getElementById("plantImage");
+
+    const diseaseResult =
+        document.getElementById("diseaseResult");
+
+
+    diseaseBtn.addEventListener(
+        "click",
+        async function() {
+
+            if (!plantImage.files.length) {
+
+                alert(
+                    "Please select a plant image first."
+                );
+
+                return;
+            }
+
+
+            diseaseResult.innerHTML =
+                "<p>🔍 Analyzing image...</p>";
+
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "image",
+                plantImage.files[0]
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/predict_disease",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (data.error) {
+
+                    diseaseResult.innerHTML =
+                        "<p>❌ "
+                        + data.error
+                        + "</p>";
+
+                    return;
+
+                }
+
+
+                diseaseResult.innerHTML = `
+
+                    <div>
+
+                        <h3>
+                            🌿 Detection Result
+                        </h3>
+
+                        <p>
+                            <b>Disease:</b>
+                            ${data.disease}
+                        </p>
+
+                        <p>
+                            <b>Confidence:</b>
+                            ${data.confidence}%
+                        </p>
+
+                        <p>
+                            <b>Description:</b>
+                            ${data.description}
+                        </p>
+
+                        <p>
+                            <b>Treatment:</b>
+                            ${data.treatment}
+                        </p>
+
+                        <p>
+                            <b>Prevention:</b>
+                            ${data.prevention}
+                        </p>
+
+                        ${
+                            data.product
+                            ?
+                            `<p>
+                                <a href="${data.product}"
+                                   target="_blank">
+                                    View related product
+                                </a>
+                             </p>`
+                            :
+                            ""
+                        }
+
+                    </div>
+
+                `;
+
+
+            } catch (error) {
+
+                diseaseResult.innerHTML =
+                    "<p>❌ Error connecting to disease model.</p>";
+
+            }
+
+        }
+    );
+
+</script>
+
 
 </body>
 
 </html>
-

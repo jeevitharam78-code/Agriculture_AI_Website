@@ -1,4 +1,61 @@
-agriculture_gemma4_lora/
-*.pth
-*.safetensors
-checkpoint-*/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Flask
+instance/
+
+# Uploaded images
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Agriculture LLM training checkpoints
+agriculture_gemma4_lora/checkpoint-100/
+agriculture_gemma4_lora/checkpoint-200/
+agriculture_gemma4_lora/checkpoint-240/
+
+# Local testing scripts
+test_agriculture_4bit.py
+test_agriculture_4bit_gpu.py
+test_agriculture_gpu.py
+test_agriculture_offload.py
+test_gemma.py
+
+# Old experimental model-loading scripts
+load_agriculture_model.py
+load_agriculture_model_v2.py
+app_backup.py
+gemma310/
+offload/
